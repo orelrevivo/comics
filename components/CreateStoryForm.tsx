@@ -80,25 +80,7 @@ export function CreateStoryForm() {
               <input name="released" type="number" className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">תרגום רשמי</label>
-              <input name="officialTranslation" className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">אנימה</label>
-              <input name="animeAdaptation" className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">RSS</label>
-              <input name="rss" className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Track</label>
-              <input name="track" className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
 
             <div className="flex items-center gap-2 mt-4">
               <input type="checkbox" name="adultContent" id="adult" className="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-600" />

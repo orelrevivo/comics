@@ -78,25 +78,7 @@ export function EditStoryForm({ storyId, initialData }: EditStoryFormProps) {
               <input name="released" defaultValue={initialData.released || ''} type="number" className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">תרגום רשמי</label>
-              <input name="officialTranslation" defaultValue={initialData.officialTranslation || ''} className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">אנימה</label>
-              <input name="animeAdaptation" defaultValue={initialData.animeAdaptation || ''} className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">RSS</label>
-              <input name="rss" defaultValue={initialData.rss || ''} className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Track</label>
-              <input name="track" defaultValue={initialData.track || ''} className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
 
             <div className="flex items-center gap-2 mt-4">
               <input type="checkbox" name="adultContent" id="adult" defaultChecked={!!initialData.adultContent} className="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-600" />
