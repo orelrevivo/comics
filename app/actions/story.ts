@@ -73,6 +73,7 @@ export async function createStoryAction(formData: FormData) {
     title: chapterTitle,
   }).returning();
 
+
   // Handle Chapter Images
   const allEntries = Array.from(formData.entries());
   let imageFiles = allEntries.filter(([key, val]) => key === 'chapterImages' && val instanceof File) as [string, File][];
