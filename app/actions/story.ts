@@ -102,6 +102,64 @@ export async function createStoryAction(formData: FormData) {
   redirect(`/story/${newStory.id}`);
 }
 
+// Creates story + chapter WITHOUT images, returns IDs so client can upload images separately
+export async function createStoryMetaAction(formData: FormData): Promise<{ storyId: string; chapterId: string }> {
+  const cookieStore = await cookies();
+  const authEmail = cookieStore.get('auth_email')?.value;
+
+  if (authEmail !== 'orel@gmail.com') {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const author = formData.get('author') as string;
+  const tags = formData.get('tags') as string;
+  const type = formData.get('type') as string;
+  const status = formData.get('status') as string;
+  const released = formData.get('released') as string;
+  const adultContent = formData.get('adultContent') === 'on';
+  const chapterNumber = parseInt(formData.get('chapterNumber') as string || '1', 10);
+  const chapterTitle = formData.get('chapterTitle') as string;
+
+  // Handle Banner Upload
+  const bannerFile = formData.get('banner') as File;
+  let bannerUrl = '';
+
+  if (bannerFile && bannerFile.size > 0) {
+    const bytes = await bannerFile.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const fileName = `${Date.now()}-${bannerFile.name}`;
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    fs.writeFileSync(path.join(uploadDir, fileName), buffer);
+    bannerUrl = `/uploads/${fileName}`;
+  }
+
+  const [newStory] = await db.insert(stories).values({
+    title, description, author, tags, type, status, released,
+    adultContent, bannerImage: bannerUrl,
+  }).returning();
+
+  const [newChapter] = await db.insert(chapters).values({
+    storyId: newStory.id,
+    chapterNumber,
+    title: chapterTitle,
+  }).returning();
+
+  return { storyId: newStory.id, chapterId: newChapter.id };
+}
+
+// Save a single image URL to a chapter (called by client after each individual upload)
+export async function saveChapterImageAction(chapterId: string, imageUrl: string, order: number) {
+  const cookieStore = await cookies();
+  const authEmail = cookieStore.get('auth_email')?.value;
+  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+
+  await db.insert(images).values({ chapterId, imageUrl, order });
+}
+
+
 async function getCurrentUser() {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
