@@ -14,10 +14,10 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create unique filename — use index + extension only to avoid issues with Hebrew/special chars
-    const ext = path.extname(file.name) || '.jpg';
+    // Create unique filename
+    const ext = file.name.split('.').pop() || 'jpg';
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const filename = uniqueSuffix + ext;
+    const filename = uniqueSuffix + '.' + ext;
     
     // Ensure upload directory exists
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');

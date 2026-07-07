@@ -3,11 +3,13 @@ import { stories, chapters } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, List, Tags, User, Calendar, Info } from "lucide-react";
+import { BookOpen, List, Tags, User, Calendar, Info, Trash2, Hash } from "lucide-react";
 import { SubscribeButton } from "@/components/SubscribeButton";
 import { cookies } from "next/headers";
 import { users, userSubscriptions } from "@/db/schema";
 import { and } from "drizzle-orm";
+import { deleteStoryAction } from "@/app/actions/story";
+import { DeleteStoryButton } from "@/components/DeleteStoryButton";
 
 export default async function StoryPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -32,6 +34,8 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
     }
   }
 
+  const isAdmin = authEmail === 'orel@gmail.com';
+
   return (
     <div className="container mx-auto py-10 px-4 max-w-5xl">
       <div className="flex flex-col md:flex-row gap-8 mb-12">
@@ -39,8 +43,8 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
         <div className="md:w-2/3 flex flex-col justify-center">
           <div className="flex items-start justify-between mb-4">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{story.title}</h1>
-            <div className="flex gap-2">
-              {authEmail === 'orel@gmail.com' && (
+            <div className="flex gap-2 flex-wrap justify-end">
+              {isAdmin && (
                 <>
                   <Link href={`/create/edit/${story.id}`} className="brutal-btn bg-yellow-400 text-zinc-900 font-bold px-4 py-2">
                     ערוך סיפור
@@ -53,6 +57,18 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
               <SubscribeButton storyId={story.id} initialIsSubscribed={isSubscribed} />
             </div>
           </div>
+
+          {/* Admin ID + Delete Panel */}
+          {isAdmin && (
+            <div className="mb-6 brutal-card bg-zinc-900 border-2 border-zinc-700 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-zinc-400 text-xs font-mono overflow-hidden">
+                <Hash className="h-4 w-4 text-zinc-500 shrink-0" />
+                <span className="text-zinc-300 font-semibold ml-1">Story ID:</span>
+                <span className="text-indigo-400 break-all">{story.id}</span>
+              </div>
+              <DeleteStoryButton storyId={story.id} storyTitle={story.title} />
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2 mb-6">
             {story.status && <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/30 dark:text-green-400">{story.status}</span>}
@@ -95,8 +111,6 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {storyChapters.map((chapter) => (
               <Link
-                type="submit"
-
                 key={chapter.id}
                 href={`/story/${story.id}/chapter/${chapter.id}`}
                 className="inline-flex items-center px-5 py-3 brutal-btn bg-white dark:bg-zinc-900 text-xs font-bold text-zinc-900 dark:text-zinc-100 transition"

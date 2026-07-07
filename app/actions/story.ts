@@ -8,6 +8,21 @@ import { revalidatePath } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
 
+async function uploadFileLocally(file: File): Promise<string> {
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+  const ext = file.name.split('.').pop() || 'jpg';
+  const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
+  const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+  
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  
+  fs.writeFileSync(path.join(uploadDir, fileName), buffer);
+  return `/uploads/${fileName}`;
+}
+
 export async function createStoryAction(formData: FormData) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
@@ -36,17 +51,7 @@ export async function createStoryAction(formData: FormData) {
   let bannerUrl = '';
 
   if (bannerFile && bannerFile.size > 0) {
-    const bytes = await bannerFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const fileName = `${Date.now()}-${bannerFile.name}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-    bannerUrl = `/uploads/${fileName}`;
+    bannerUrl = await uploadFileLocally(bannerFile);
   }
 
   // Insert Story
@@ -84,16 +89,10 @@ export async function createStoryAction(formData: FormData) {
   for (let i = 0; i < imageFiles.length; i++) {
     const file = imageFiles[i][1];
     if (file && file.size > 0) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const fileName = `${Date.now()}-img-${i}-${file.name}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      
-      fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-      
+      const imageUrl = await uploadFileLocally(file);
       await db.insert(images).values({
         chapterId: newChapter.id,
-        imageUrl: `/uploads/${fileName}`,
+        imageUrl,
         order: i + 1,
       });
     }
@@ -127,13 +126,7 @@ export async function createStoryMetaAction(formData: FormData): Promise<{ story
   let bannerUrl = '';
 
   if (bannerFile && bannerFile.size > 0) {
-    const bytes = await bannerFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const fileName = `${Date.now()}-${bannerFile.name}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-    bannerUrl = `/uploads/${fileName}`;
+    bannerUrl = await uploadFileLocally(bannerFile);
   }
 
   const [newStory] = await db.insert(stories).values({
@@ -224,17 +217,7 @@ export async function editStoryAction(storyId: string, formData: FormData) {
   let bannerUrl = '';
 
   if (bannerFile && bannerFile.size > 0) {
-    const bytes = await bannerFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const fileName = `${Date.now()}-${bannerFile.name}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-    bannerUrl = `/uploads/${fileName}`;
+    bannerUrl = await uploadFileLocally(bannerFile);
   }
 
   const updateData: any = {
@@ -313,20 +296,10 @@ export async function uploadChapterImagesAction(chapterId: string, formData: For
   for (let i = 0; i < imageFiles.length; i++) {
     const file = imageFiles[i][1];
     if (file && file.size > 0) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const fileName = `${Date.now()}-img-${i}-${file.name}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      
-      fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-      
+      const imageUrl = await uploadFileLocally(file);
       await db.insert(images).values({
         chapterId: chapterId,
-        imageUrl: `/uploads/${fileName}`,
+        imageUrl,
         order: startOrder + i,
       });
     }
@@ -349,4 +322,53 @@ export async function deleteChapterImageAction(imageId: string, chapterId: strin
   await db.delete(images).where(eq(images.id, imageId));
 
   revalidatePath(`/create/edit/${storyId}/chapters/${chapterId}`);
+}
+
+export async function deleteStoryAction(storyId: string) {
+  const cookieStore = await cookies();
+  const authEmail = cookieStore.get('auth_email')?.value;
+  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+
+  const { eq } = await import('drizzle-orm');
+  const { userSubscriptions } = await import('@/db/schema');
+
+  // 1. Delete all subscriptions to this story
+  await db.delete(userSubscriptions).where(eq(userSubscriptions.storyId, storyId));
+
+  // 2. Get all chapters for this story
+  const storyChapters = await db.select().from(chapters).where(eq(chapters.storyId, storyId));
+
+  const { communityPosts, polls, pollOptions, pollVotes, postLikes } = await import('@/db/schema');
+
+  // 3. Delete all images & community posts for each chapter
+  for (const chapter of storyChapters) {
+    await db.delete(images).where(eq(images.chapterId, chapter.id));
+
+    // Get posts for this chapter
+    const posts = await db.select().from(communityPosts).where(eq(communityPosts.chapterId, chapter.id));
+    for (const post of posts) {
+      // Delete post likes
+      await db.delete(postLikes).where(eq(postLikes.postId, post.id));
+      
+      // Get polls for this post
+      const postPolls = await db.select().from(polls).where(eq(polls.postId, post.id));
+      for (const poll of postPolls) {
+        await db.delete(pollVotes).where(eq(pollVotes.pollId, poll.id));
+        await db.delete(pollOptions).where(eq(pollOptions.pollId, poll.id));
+        await db.delete(polls).where(eq(polls.id, poll.id));
+      }
+      
+      // Finally delete the post
+      await db.delete(communityPosts).where(eq(communityPosts.id, post.id));
+    }
+  }
+
+  // 4. Delete all chapters
+  await db.delete(chapters).where(eq(chapters.storyId, storyId));
+
+  // 5. Delete the story itself
+  await db.delete(stories).where(eq(stories.id, storyId));
+
+  revalidatePath('/');
+  redirect('/');
 }
