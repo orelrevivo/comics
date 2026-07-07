@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 
 export async function POST(request: Request) {
   try {
@@ -13,22 +11,21 @@ export async function POST(request: Request) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-
-    // Create unique filename
-    const ext = file.name.split('.').pop() || 'jpg';
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const filename = uniqueSuffix + '.' + ext;
     
-    // Ensure upload directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    // Convert the image directly to a base64 string
+    const base64String = buffer.toString('base64');
+    
+    // Determine the mime type from the file extension or default to jpeg
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    let mimeType = 'image/jpeg';
+    if (ext === 'png') mimeType = 'image/png';
+    else if (ext === 'gif') mimeType = 'image/gif';
+    else if (ext === 'webp') mimeType = 'image/webp';
+    else if (ext === 'svg') mimeType = 'image/svg+xml';
 
-    const filepath = path.join(uploadDir, filename);
-    fs.writeFileSync(filepath, buffer);
+    // The "url" is now the actual raw image data encoded as base64
+    const fileUrl = `data:${mimeType};base64,${base64String}`;
 
-    const fileUrl = `/uploads/${filename}`;
     return NextResponse.json({ url: fileUrl });
   } catch (error) {
     console.error('Upload Error:', error);

@@ -5,22 +5,24 @@ import { stories, chapters, images } from '@/db/schema';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs';
-import path from 'path';
-
 async function uploadFileLocally(file: File): Promise<string> {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-  const ext = file.name.split('.').pop() || 'jpg';
-  const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads');
   
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
+  // Convert the image directly to a base64 string
+  const base64String = buffer.toString('base64');
   
-  fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-  return `/uploads/${fileName}`;
+  // Determine the mime type from the file extension
+  const ext = file.name.split('.').pop()?.toLowerCase();
+  let mimeType = 'image/jpeg';
+  if (ext === 'png') mimeType = 'image/png';
+  else if (ext === 'gif') mimeType = 'image/gif';
+  else if (ext === 'webp') mimeType = 'image/webp';
+  else if (ext === 'svg') mimeType = 'image/svg+xml';
+
+  // The "url" is now the actual raw image data encoded as base64
+  // This will be saved directly inside Neon!
+  return `data:${mimeType};base64,${base64String}`;
 }
 
 export async function createStoryAction(formData: FormData) {
