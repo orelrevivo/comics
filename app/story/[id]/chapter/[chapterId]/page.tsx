@@ -55,7 +55,8 @@ export default async function ChapterPage({ params }: { params: Promise<{ id: st
   if (chapterResults.length === 0) notFound();
   const chapter = chapterResults[0];
 
-  const chapterImages = await db.select().from(images).where(eq(images.chapterId, chapterId)).orderBy(images.order);
+  const rawImages = await db.select({ id: images.id, order: images.order }).from(images).where(eq(images.chapterId, chapterId)).orderBy(images.order);
+  const chapterImages = rawImages.map(img => ({ ...img, imageUrl: `/api/image/${img.id}` }));
 
   // Pagination for chapters (previous / next)
   const allChapters = await db.select().from(chapters).where(eq(chapters.storyId, storyId)).orderBy(chapters.chapterNumber);

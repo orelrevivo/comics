@@ -25,7 +25,8 @@ export default async function ChapterImagesPage({ params }: { params: Promise<{ 
   const [chapter] = await db.select().from(chapters).where(eq(chapters.id, chapterId));
   if (!chapter) notFound();
 
-  const chapterImages = await db.select().from(images).where(eq(images.chapterId, chapterId)).orderBy(asc(images.order));
+  const rawImages = await db.select({ id: images.id, order: images.order }).from(images).where(eq(images.chapterId, chapterId)).orderBy(asc(images.order));
+  const chapterImages = rawImages.map(img => ({ ...img, imageUrl: `/api/image/${img.id}` }));
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-4xl">

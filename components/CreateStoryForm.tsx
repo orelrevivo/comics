@@ -38,12 +38,11 @@ export function CreateStoryForm() {
 
         const imgFormData = new FormData();
         imgFormData.append('file', sortedImages[i]);
+        imgFormData.append('chapterId', chapterId);
+        imgFormData.append('order', String(i + 1));
 
         const res = await fetch('/api/upload', { method: 'POST', body: imgFormData });
         if (!res.ok) throw new Error(`Failed to upload image ${i + 1}`);
-        const { url } = await res.json();
-
-        await saveChapterImageAction(chapterId, url, i + 1);
       }
 
       // ─── Phase 3: Navigate to story ───

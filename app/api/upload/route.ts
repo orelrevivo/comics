@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/db';
+import { images } from '@/db/schema';
+import crypto from 'crypto';
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const chapterId = formData.get('chapterId') as string | null;
+    const orderStr = formData.get('order') as string | null;
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -26,9 +31,18 @@ export async function POST(request: Request) {
     // The "url" is now the actual raw image data encoded as base64
     const fileUrl = `data:${mimeType};base64,${base64String}`;
 
+    if (chapterId && orderStr) {
+      await db.insert(images).values({
+        chapterId,
+        imageUrl: fileUrl,
+        order: parseInt(orderStr, 10),
+      });
+      return NextResponse.json({ success: true });
+    }
+
     return NextResponse.json({ url: fileUrl });
   } catch (error) {
     console.error('Upload Error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Upload failed.' }, { status: 500 });
   }
 }

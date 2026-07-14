@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { uploadChapterImagesAction, deleteChapterImageAction } from '@/app/actions/story';
-import { Trash2, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
+import { saveChapterImageAction, deleteChapterImageAction } from '@/app/actions/story';
+import { Trash2, Upload, Loader2, Image as ImageIcon, CheckCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface ImageItem {
   id: string;
@@ -21,25 +22,43 @@ export default function EditChapterImagesClient({
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
+  const router = useRouter();
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFiles || selectedFiles.length === 0) return;
 
     setIsUploading(true);
-    const formData = new FormData();
-    for (let i = 0; i < selectedFiles.length; i++) {
-      formData.append('chapterImages', selectedFiles[i]);
-    }
+    const filesArray = Array.from(selectedFiles);
+    
+    // Find the starting order index
+    const startOrder = initialImages.length > 0 
+      ? Math.max(...initialImages.map(img => img.order)) + 1 
+      : 1;
 
     try {
-      await uploadChapterImagesAction(chapterId, formData);
+      for (let i = 0; i < filesArray.length; i++) {
+        setProgress({ current: i + 1, total: filesArray.length, phase: `מעלה תמונה ${i + 1} מתוך ${filesArray.length}...` });
+
+        const imgFormData = new FormData();
+        imgFormData.append('file', filesArray[i]);
+        imgFormData.append('chapterId', chapterId);
+        imgFormData.append('order', String(startOrder + i));
+
+        const res = await fetch('/api/upload', { method: 'POST', body: imgFormData });
+        if (!res.ok) throw new Error(`Failed to upload image ${i + 1}`);
+      }
+
+      setProgress({ current: filesArray.length, total: filesArray.length, phase: 'ההעלאה הושלמה!' });
       setSelectedFiles(null);
       (document.getElementById('file-upload') as HTMLInputElement).value = '';
+      router.refresh();
     } catch (error) {
-      alert('שגיאה בהעלאת תמונות');
+      alert('שגיאה בהעלאת תמונות. נסה לבחור קבצים קטנים יותר או פחות קבצים בכל פעם.');
     } finally {
       setIsUploading(false);
+      setTimeout(() => setProgress({ current: 0, total: 0, phase: '' }), 2000);
     }
   };
 
@@ -57,6 +76,26 @@ export default function EditChapterImagesClient({
       {/* Upload Form */}
       <div className="brutal-card bg-zinc-50 dark:bg-zinc-900 p-6">
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Upload className="w-5 h-5" /> העלה תמונות חדשות</h2>
+        
+        {isUploading && progress.total > 0 && (
+          <div className="mb-6 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 p-4 border border-indigo-200 dark:border-indigo-700">
+            <div className="flex items-center gap-3 mb-2">
+              {progress.current === progress.total ? (
+                <CheckCircle className="h-5 w-5 text-green-500" />
+              ) : (
+                <Loader2 className="h-5 w-5 text-indigo-600 animate-spin" />
+              )}
+              <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">{progress.phase}</span>
+            </div>
+            <div className="w-full bg-indigo-200 dark:bg-indigo-800 rounded-full h-2">
+              <div
+                className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(progress.current / progress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleUpload} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <input 
             type="file" 
@@ -80,7 +119,7 @@ export default function EditChapterImagesClient({
             {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'העלה תמונות'}
           </button>
         </form>
-        <p className="text-xs text-zinc-500 mt-2">התמונות יתווספו לסוף הפרק. ניתן להעלות מספר תמונות יחד.</p>
+        <p className="text-xs text-zinc-500 mt-2">התמונות מועלות אחת-אחת (Progress Bar) כדי לא לחסום את השרת, ניתן לבחור עשרות תמונות בבת אחת!</p>
       </div>
 
       {/* Image Grid */}
