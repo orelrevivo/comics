@@ -1,22 +1,25 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 
 export default function ProfileForm({ user }: { user: any }) {
   const [name, setName] = useState(user.name || '');
   const [bio, setBio] = useState(user.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
+  const [showRepliesTab, setShowRepliesTab] = useState(user.showRepliesTab ?? true);
+  const [isPrivate, setIsPrivate] = useState(user.isPrivate ?? false);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     setIsUploading(true);
     const formData = new FormData();
     formData.append('file', file);
-    
+
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await res.json();
@@ -38,7 +41,9 @@ export default function ProfileForm({ user }: { user: any }) {
       formData.append('name', name);
       formData.append('bio', bio);
       formData.append('avatarUrl', avatarUrl);
-      
+      formData.append('showRepliesTab', showRepliesTab.toString());
+      formData.append('isPrivate', isPrivate.toString());
+
       const res = await fetch('/api/profile', { method: 'POST', body: formData });
       if (res.ok) {
         alert('הפרופיל עודכן בהצלחה!');
@@ -69,7 +74,6 @@ export default function ProfileForm({ user }: { user: any }) {
         </div>
         {isUploading && <span className="text-sm text-indigo-500 font-bold animate-pulse">מעלה תמונה...</span>}
       </div>
-
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">שם תצוגה</label>
@@ -94,6 +98,36 @@ export default function ProfileForm({ user }: { user: any }) {
         </div>
       </div>
 
+      <div className="space-y-4 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+        <h3 className="text-lg font-bold text-zinc-900 dark:text-white">הגדרות משתמש</h3>
+
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showRepliesTab}
+            onChange={(e) => setShowRepliesTab(e.target.checked)}
+            className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-600 dark:bg-zinc-800"
+          />
+          <div>
+            <div className="font-medium text-zinc-900 dark:text-zinc-100">הצג לשונית תגובות (Replies)</div>
+            <div className="text-sm text-zinc-500">אפשר למשתמשים לראות את התגובות שלך בפרופיל.</div>
+          </div>
+        </label>
+
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPrivate}
+            onChange={(e) => setIsPrivate(e.target.checked)}
+            className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-600 dark:bg-zinc-800"
+          />
+          <div>
+            <div className="font-medium text-zinc-900 dark:text-zinc-100">פרופיל פרטי</div>
+            <div className="text-sm text-zinc-500">רק אתה תוכל לראות את הפוסטים והתגובות שלך.</div>
+          </div>
+        </label>
+      </div>
+
       <button
         type="submit"
         disabled={isSaving}
@@ -101,6 +135,9 @@ export default function ProfileForm({ user }: { user: any }) {
       >
         {isSaving ? 'שומר...' : 'שמור שינויים'}
       </button>
+      <Link href={`/profile/${user.id}`} className="text-center text-blue-600 dark:text-blue-400 hover:underline">
+        Go to your public profile
+      </Link>
     </form>
   );
 }

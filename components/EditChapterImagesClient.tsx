@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { saveChapterImageAction, deleteChapterImageAction } from '@/app/actions/story';
-import { Trash2, Upload, Loader2, Image as ImageIcon, CheckCircle } from 'lucide-react';
+import { saveChapterImageAction, deleteChapterImageAction, updateImageWidthAction } from '@/app/actions/story';
+import { Trash2, Upload, Loader2, Image as ImageIcon, CheckCircle, MoreVertical, Maximize2, Minimize2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface ImageItem {
   id: string;
   url: string;
   order: number;
+  isWide?: boolean | null;
 }
 
 export default function EditChapterImagesClient({
@@ -23,6 +24,7 @@ export default function EditChapterImagesClient({
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [progress, setProgress] = useState({ current: 0, total: 0, phase: '' });
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const router = useRouter();
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -68,6 +70,15 @@ export default function EditChapterImagesClient({
       await deleteChapterImageAction(imageId, chapterId, storyId);
     } catch (error) {
       alert('שגיאה במחיקת תמונה');
+    }
+  };
+
+  const handleWidthChange = async (imageId: string, isWide: boolean) => {
+    try {
+      await updateImageWidthAction(imageId, chapterId, storyId, isWide);
+      setOpenMenuId(null);
+    } catch (error) {
+      alert('שגיאה בעדכון רוחב התמונה');
     }
   };
 
@@ -144,6 +155,35 @@ export default function EditChapterImagesClient({
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
+
+                <div className="absolute top-12 left-0 z-20 m-2">
+                  <button
+                    onClick={() => setOpenMenuId(openMenuId === img.id ? null : img.id)}
+                    className="bg-black/70 text-white p-2 rounded-md hover:bg-black transition-colors"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                  
+                  {openMenuId === img.id && (
+                    <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-zinc-800 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-md z-30 overflow-hidden text-sm">
+                      <button
+                        onClick={() => handleWidthChange(img.id, true)}
+                        className={`w-full text-right px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between ${img.isWide ? 'font-bold bg-zinc-100 dark:bg-zinc-700' : ''}`}
+                      >
+                        <span>רוחב מלא</span>
+                        <Maximize2 className="w-4 h-4 text-zinc-500" />
+                      </button>
+                      <button
+                        onClick={() => handleWidthChange(img.id, false)}
+                        className={`w-full text-right px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between ${!img.isWide ? 'font-bold bg-zinc-100 dark:bg-zinc-700' : ''}`}
+                      >
+                        <span>רגיל</span>
+                        <Minimize2 className="w-4 h-4 text-zinc-500" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="aspect-[2/3] w-full relative overflow-hidden bg-zinc-100 dark:bg-zinc-900">
                   <img 
                     src={img.url} 

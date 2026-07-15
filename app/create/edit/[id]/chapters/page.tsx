@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { ArrowRight, Trash2, Plus, Image as ImageIcon } from "lucide-react";
 import { deleteChapterAction, addChapterAction } from "@/app/actions/story";
+import { DeleteChapterButton } from "@/components/DeleteChapterButton";
 
 export default async function ChaptersDashboardPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -15,7 +16,7 @@ export default async function ChaptersDashboardPage({ params }: { params: Promis
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
 
-  if (authEmail !== 'orel@gmail.com') {
+  if (authEmail !== 'doron2010sha@gmail.com') {
     redirect('/');
   }
 
@@ -37,7 +38,7 @@ export default async function ChaptersDashboardPage({ params }: { params: Promis
           <h1 className="text-3xl font-extrabold tracking-tight">ניהול פרקים</h1>
           <p className="text-zinc-500 mt-1">{story.title}</p>
         </div>
-        
+
         <form action={async (formData) => {
           'use server';
           const title = formData.get('title') as string;
@@ -61,22 +62,14 @@ export default async function ChaptersDashboardPage({ params }: { params: Promis
           storyChapters.map(chapter => (
             <div key={chapter.id} className="brutal-card bg-white dark:bg-zinc-900 p-4 flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-lg">פרק {chapter.chapterNumber}</h3>
-                {chapter.title && <p className="text-sm text-zinc-500">{chapter.title}</p>}
+                {chapter.title && <p className="font-bold text-lg">{chapter.title}</p>}
               </div>
               <div className="flex items-center gap-2 space-x-reverse">
                 <Link href={`/create/edit/${story.id}/chapters/${chapter.id}`} className="brutal-btn bg-indigo-500 text-white px-4 py-2 flex items-center gap-2 text-sm font-bold">
                   <ImageIcon className="w-4 h-4" />
                   <span>ערוך תמונות</span>
                 </Link>
-                <form action={async () => {
-                  'use server';
-                  await deleteChapterAction(chapter.id, story.id);
-                }}>
-                  <button type="submit" className="brutal-btn bg-red-500 text-white p-2">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </form>
+                <DeleteChapterButton chapterId={chapter.id} storyId={story.id} />
               </div>
             </div>
           ))

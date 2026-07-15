@@ -6,7 +6,7 @@ export default async function CreateStoryPage() {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
 
-  if (authEmail !== 'orel@gmail.com') {
+  if (authEmail !== 'doron2010sha@gmail.com') {
     return (
       <div className="container mx-auto py-20 px-4 text-center max-w-lg">
         <div className="brutal-card bg-red-50 dark:bg-red-900/20 p-8 border border-red-200 dark:border-red-900/50">

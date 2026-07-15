@@ -29,7 +29,7 @@ export async function createStoryAction(formData: FormData) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
 
-  if (authEmail !== 'orel@gmail.com') {
+  if (authEmail !== 'doron2010sha@gmail.com') {
     throw new Error('Unauthorized');
   }
 
@@ -108,7 +108,7 @@ export async function createStoryMetaAction(formData: FormData): Promise<{ story
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
 
-  if (authEmail !== 'orel@gmail.com') {
+  if (authEmail !== 'doron2010sha@gmail.com') {
     throw new Error('Unauthorized');
   }
 
@@ -149,7 +149,7 @@ export async function createStoryMetaAction(formData: FormData): Promise<{ story
 export async function saveChapterImageAction(chapterId: string, imageUrl: string, order: number) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
-  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+  if (authEmail !== 'doron2010sha@gmail.com') throw new Error('Unauthorized');
 
   await db.insert(images).values({ chapterId, imageUrl, order });
 }
@@ -197,7 +197,7 @@ export async function editStoryAction(storyId: string, formData: FormData) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
 
-  if (authEmail !== 'orel@gmail.com') {
+  if (authEmail !== 'doron2010sha@gmail.com') {
     throw new Error('Unauthorized');
   }
 
@@ -251,7 +251,7 @@ export async function editStoryAction(storyId: string, formData: FormData) {
 export async function addChapterAction(storyId: string, chapterTitle: string, chapterNumber: number) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
-  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+  if (authEmail !== 'doron2010sha@gmail.com') throw new Error('Unauthorized');
 
   await db.insert(chapters).values({
     storyId,
@@ -265,7 +265,7 @@ export async function addChapterAction(storyId: string, chapterTitle: string, ch
 export async function deleteChapterAction(chapterId: string, storyId: string) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
-  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+  if (authEmail !== 'doron2010sha@gmail.com') throw new Error('Unauthorized');
 
   const { eq } = await import('drizzle-orm');
   
@@ -282,7 +282,7 @@ export async function deleteChapterAction(chapterId: string, storyId: string) {
 export async function uploadChapterImagesAction(chapterId: string, formData: FormData) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
-  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+  if (authEmail !== 'doron2010sha@gmail.com') throw new Error('Unauthorized');
 
   const { eq, desc } = await import('drizzle-orm');
 
@@ -317,7 +317,7 @@ export async function uploadChapterImagesAction(chapterId: string, formData: For
 export async function deleteChapterImageAction(imageId: string, chapterId: string, storyId: string) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
-  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+  if (authEmail !== 'doron2010sha@gmail.com') throw new Error('Unauthorized');
 
   const { eq } = await import('drizzle-orm');
   
@@ -329,7 +329,7 @@ export async function deleteChapterImageAction(imageId: string, chapterId: strin
 export async function deleteStoryAction(storyId: string) {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
-  if (authEmail !== 'orel@gmail.com') throw new Error('Unauthorized');
+  if (authEmail !== 'doron2010sha@gmail.com') throw new Error('Unauthorized');
 
   const { eq } = await import('drizzle-orm');
   const { userSubscriptions } = await import('@/db/schema');
@@ -373,4 +373,21 @@ export async function deleteStoryAction(storyId: string) {
 
   revalidatePath('/');
   redirect('/');
+}
+
+export async function updateImageWidthAction(imageId: string, chapterId: string, storyId: string, isWide: boolean) {
+  const cookieStore = await cookies();
+  const authEmail = cookieStore.get('auth_email')?.value;
+
+  if (authEmail !== 'doron2010sha@gmail.com') {
+    throw new Error('Unauthorized');
+  }
+
+  const { eq } = await import('drizzle-orm');
+
+  await db.update(images)
+    .set({ isWide })
+    .where(eq(images.id, imageId));
+
+  revalidatePath(`/create/edit/${storyId}/chapters/${chapterId}`);
 }

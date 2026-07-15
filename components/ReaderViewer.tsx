@@ -26,6 +26,40 @@ const defaultSettings: ReaderSettings = {
   imageFit: 'fit_width',
 };
 
+const ReaderImage = ({ img, settings }: { img: any, settings: ReaderSettings }) => {
+  const [dims, setDims] = useState({ w: 0, h: 0 });
+
+  if (!img.isWide) {
+    return (
+      <img
+        src={img.imageUrl}
+        alt={`Page`}
+        className={`${settings.imageFit === 'fit_width' ? 'w-full max-w-4xl object-contain' : 'h-[90vh] object-contain'} select-none`}
+        loading="lazy"
+      />
+    );
+  }
+
+  return (
+    <div 
+      className={`relative flex items-center justify-center ${settings.imageFit === 'fit_width' ? 'w-full max-w-4xl' : 'h-[90vh]'}`}
+      style={{ 
+        aspectRatio: dims.h > 0 ? `${dims.h} / ${dims.w}` : '1 / 1',
+        containerType: 'inline-size' 
+      }}
+    >
+      <img
+        src={img.imageUrl}
+        alt="Page"
+        onLoad={(e) => setDims({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
+        className="absolute -rotate-90 origin-center"
+        style={{ height: '100cqw', width: 'auto', maxWidth: 'none' }}
+        loading="lazy"
+      />
+    </div>
+  );
+};
+
 export default function ReaderViewer({
   story,
   chapter,
@@ -182,7 +216,7 @@ export default function ReaderViewer({
 
       {/* Reader Viewer */}
       <div
-        className={`max-w-screen-xl mx-auto flex flex-col items-center mt-4 ${settings.readingStyle === 'long_strip' ? '' : 'min-h-[80vh] justify-center cursor-pointer select-none'}`}
+        className={`w-full mx-auto flex flex-col items-center mt-4 ${settings.readingStyle === 'long_strip' ? '' : 'min-h-[80vh] justify-center cursor-pointer select-none'}`}
         onClick={handleAreaClick}
       >
         {chapterImages.length === 0 ? (
@@ -192,13 +226,7 @@ export default function ReaderViewer({
             className={`flex ${settings.readingStyle === 'long_strip' ? 'flex-col items-center' : 'justify-center items-center'} ${settings.imageGap ? 'gap-y-4 gap-x-2' : ''} w-full`}
           >
             {renderedImages.map((img: any, idx: any) => (
-              <img
-                key={img.id || idx}
-                src={img.imageUrl}
-                alt={`Page`}
-                className={`${settings.imageFit === 'fit_width' ? 'w-full max-w-4xl object-contain' : 'h-[90vh] object-contain'} select-none`}
-                loading="lazy"
-              />
+              <ReaderImage key={img.id || idx} img={img} settings={settings} />
             ))}
           </div>
         )}

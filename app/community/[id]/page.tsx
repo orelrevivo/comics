@@ -16,7 +16,7 @@ function CommentNode({ comment, allComments, rootPostId, authEmail, currentUserI
   return (
     <PostItem
       post={comment.post}
-      author={{ id: comment.authorId, name: comment.authorName, email: comment.authorEmail, avatarUrl: comment.authorAvatar }}
+      author={{ id: comment.authorId, name: comment.authorName, email: comment.authorEmail, avatarUrl: comment.authorAvatar, isVerified: comment.authorIsVerified }}
       likesCount={comment.likesCount}
       hasLiked={comment.hasLiked}
       currentUserId={currentUserId}
@@ -60,6 +60,7 @@ export default async function PostDetailsPage({ params }: { params: Promise<{ id
     authorName: users.name,
     authorEmail: users.email,
     authorAvatar: users.avatarUrl,
+    authorIsVerified: users.isVerified,
     likesCount: sql<number>`count(distinct ${postLikes.id})::int`,
     hasLiked: sql<boolean>`bool_or(${postLikes.userId} = ${currentUserId || 0})`,
   })
@@ -67,7 +68,7 @@ export default async function PostDetailsPage({ params }: { params: Promise<{ id
     .leftJoin(users, eq(communityPosts.userId, users.id))
     .leftJoin(postLikes, eq(communityPosts.id, postLikes.postId))
     .where(eq(communityPosts.id, postId))
-    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl);
+    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl, users.isVerified);
 
   if (!mainPostRow || mainPostRow.post.parentId !== null) {
     notFound(); // Not a top level post or doesn't exist
@@ -83,6 +84,7 @@ export default async function PostDetailsPage({ params }: { params: Promise<{ id
     authorName: users.name,
     authorEmail: users.email,
     authorAvatar: users.avatarUrl,
+    authorIsVerified: users.isVerified,
     likesCount: sql<number>`count(distinct ${postLikes.id})::int`,
     hasLiked: sql<boolean>`bool_or(${postLikes.userId} = ${currentUserId || 0})`,
   })
@@ -90,7 +92,7 @@ export default async function PostDetailsPage({ params }: { params: Promise<{ id
     .leftJoin(users, eq(communityPosts.userId, users.id))
     .leftJoin(postLikes, eq(communityPosts.id, postLikes.postId))
     .where(eq(communityPosts.rootPostId, postId))
-    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl);
+    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl, users.isVerified);
 
   // Find direct replies to the main post
   const topLevelComments = allComments.filter(c => c.post.parentId === postId);
@@ -131,7 +133,8 @@ export default async function PostDetailsPage({ params }: { params: Promise<{ id
             id: mainPostRow.authorId || "",
             name: mainPostRow.authorName || "",
             email: mainPostRow.authorEmail || "",
-            avatarUrl: mainPostRow.authorAvatar || ""
+            avatarUrl: mainPostRow.authorAvatar || "",
+            isVerified: mainPostRow.authorIsVerified || false
           }}
           likesCount={mainPostRow.likesCount}
           hasLiked={mainPostRow.hasLiked}

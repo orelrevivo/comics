@@ -24,7 +24,7 @@ export function EditStoryForm({ storyId, initialData }: EditStoryFormProps) {
         </p>
       </div>
 
-      <form 
+      <form
         action={async (formData) => {
           setIsSubmitting(true);
           try {
@@ -32,12 +32,12 @@ export function EditStoryForm({ storyId, initialData }: EditStoryFormProps) {
           } finally {
             setIsSubmitting(false);
           }
-        }} 
+        }}
         className="space-y-8"
       >
         <div className="space-y-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
           <h2 className="text-xl font-semibold">פרטי הסיפור</h2>
-          
+
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="col-span-full">
               <label className="block text-sm font-medium mb-1">כותרת</label>
@@ -59,10 +59,10 @@ export function EditStoryForm({ storyId, initialData }: EditStoryFormProps) {
               <input name="tags" defaultValue={initialData.tags || ''} placeholder="Action, Fantasy..." className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium mb-1">סוג</label>
               <input name="type" defaultValue={initialData.type || ''} placeholder="Manga, Manhwa..." className="w-full rounded-lg border border-zinc-300 p-2.5 dark:border-zinc-700 dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500 outline-none" />
-            </div>
+            </div> */}
 
             <div>
               <label className="block text-sm font-medium mb-1">סטטוס</label>
@@ -100,8 +100,8 @@ export function EditStoryForm({ storyId, initialData }: EditStoryFormProps) {
           </div>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={isSubmitting}
           className="w-full flex justify-center items-center gap-2 brutal-btn bg-indigo-600 px-8 py-4 text-lg font-bold text-white transition-all disabled:opacity-70 disabled:cursor-not-allowed"
         >

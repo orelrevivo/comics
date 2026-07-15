@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { MessageSquare, CornerDownLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { MessageSquare, CornerDownLeft, CheckCircle2 } from 'lucide-react';
 import LikeButton from '@/components/LikeButton';
 import { CommentForm } from '@/components/CommentForm';
 import { useState } from 'react';
@@ -18,6 +19,7 @@ interface PostItemProps {
     name?: string | null;
     email?: string | null;
     avatarUrl?: string | null;
+    isVerified?: boolean;
   };
   likesCount: number;
   hasLiked: boolean;
@@ -60,8 +62,12 @@ export default function PostItem({
     }
   }
 
-  const Wrapper = isFeedItem ? Link : 'div';
-  const wrapperProps = isFeedItem ? { href: `/community/${post.id}`, className: "block" } : {};
+  const router = useRouter();
+
+  const Wrapper = 'div';
+  const wrapperProps = isFeedItem 
+    ? { onClick: () => router.push(`/community/${post.id}`), className: "block cursor-pointer" } 
+    : { className: "block" };
 
   return (
     <div className="relative flex flex-col w-full">
@@ -79,8 +85,9 @@ export default function PostItem({
           </div>
         </Link>
         <div className="flex items-center gap-2">
-          <Link href={`/profile/${author.id}`} className="font-bold text-[15px] text-zinc-100 hover:underline z-10" onClick={(e) => e.stopPropagation()}>
+          <Link href={`/profile/${author.id}`} className="font-bold text-[15px] text-zinc-100 hover:underline z-10 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             {displayName}
+            {author.isVerified && <img src="/Verified Badge.svg" alt="Verified" className="w-4 h-4" />}
           </Link>
           <span className="text-zinc-500 text-xs font-medium">{timeStr}</span>
         </div>
@@ -96,7 +103,7 @@ export default function PostItem({
           {post.title && !isComment && (
             <h3 className="text-xl font-bold text-indigo-400 mb-2">{post.title}</h3>
           )}
-          
+
           <div
             className={`text-zinc-300 ${isComment ? 'text-[15px]' : 'text-base'} leading-relaxed prose dark:prose-invert max-w-none break-words`}
             dangerouslySetInnerHTML={{ __html: post.content }}
@@ -105,15 +112,15 @@ export default function PostItem({
 
         {/* Actions */}
         <div className="flex items-center gap-1 mt-3 relative z-10">
-          <LikeButton 
-            postId={post.id} 
-            initialLikes={likesCount} 
-            initialHasLiked={hasLiked} 
-            disabled={!currentUserId} 
+          <LikeButton
+            postId={post.id}
+            initialLikes={likesCount}
+            initialHasLiked={hasLiked}
+            disabled={!currentUserId}
           />
-          
+
           {!hideReplyButton && (
-            <button 
+            <button
               onClick={() => setShowReplyForm(!showReplyForm)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition text-sm font-medium"
             >

@@ -17,9 +17,11 @@ export async function POST(req: NextRequest) {
     const name = formData.get('name') as string;
     const bio = formData.get('bio') as string;
     const avatarUrl = formData.get('avatarUrl') as string;
+    const showRepliesTab = formData.get('showRepliesTab') === 'true';
+    const isPrivate = formData.get('isPrivate') === 'true';
 
     await db.update(users)
-      .set({ name, bio, avatarUrl })
+      .set({ name, bio, avatarUrl, showRepliesTab, isPrivate })
       .where(eq(users.email, authEmail));
 
     return NextResponse.json({ success: true });

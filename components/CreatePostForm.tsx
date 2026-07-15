@@ -28,7 +28,7 @@ export default function CreatePostForm() {
     <div className="sm:p-6 brutal-card bg-white dark:bg-[#0B1416] mb-10 w-full font-sans">
       {/* Tabs */}
       <div className="flex gap-1 mb-4 border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto hide-scrollbar">
-        {['Text', 'Images & Video', 'Link', 'Poll'].map((tab) => (
+        {['Text', 'Images & Video', 'Poll'].map((tab) => (
           <button
             key={tab}
             type="button"
@@ -107,16 +107,7 @@ export default function CreatePostForm() {
           </div>
         )}
 
-        {activeTab === 'link' && (
-          <div className="relative">
-            <input
-              type="url"
-              placeholder="Url"
-              onChange={(e) => setContent(`<a href="${e.target.value}">${e.target.value}</a>`)}
-              className="w-full brutal-input bg-transparent p-3 text-zinc-900 dark:text-zinc-100"
-            />
-          </div>
-        )}
+
 
         {/* Hidden Inputs for Poll Options */}
         {pollOptions.map((opt, idx) => (

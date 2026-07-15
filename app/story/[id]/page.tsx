@@ -34,7 +34,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  const isAdmin = authEmail === 'orel@gmail.com';
+  const isAdmin = authEmail === 'doron2010sha@gmail.com';
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-5xl">
@@ -116,8 +116,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
                 className="inline-flex items-center px-5 py-3 brutal-btn bg-white dark:bg-zinc-900 text-xs font-bold text-zinc-900 dark:text-zinc-100 transition"
               >
                 <div>
-                  <span className="font-semibold block">פרק {chapter.chapterNumber}</span>
-                  {chapter.title && <span className="text-xs text-zinc-500 dark:text-zinc-400">{chapter.title}</span>}
+                  {chapter.title && <span className="font-semibold block">{chapter.title}</span>}
                 </div>
               </Link>
             ))}

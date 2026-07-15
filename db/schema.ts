@@ -7,7 +7,11 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   name: text('name'),
   avatarUrl: text('avatar_url'),
+  coverColor: text('cover_color').default('#333333'),
   bio: text('bio'),
+  showRepliesTab: boolean('show_replies_tab').default(true),
+  isPrivate: boolean('is_private').default(false),
+  isVerified: boolean('is_verified').default(false),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -43,6 +47,7 @@ export const images = pgTable('images', {
   chapterId: text('chapter_id').references(() => chapters.id).notNull(),
   imageUrl: text('image_url').notNull(),
   order: integer('order').notNull(),
+  isWide: boolean('is_wide').default(false),
 });
 
 export const communityPosts = pgTable('community_posts', {

@@ -28,6 +28,7 @@ export default async function CommunityHub() {
     authorName: users.name,
     authorEmail: users.email,
     authorAvatar: users.avatarUrl,
+    authorIsVerified: users.isVerified,
     likesCount: sql<number>`count(distinct ${postLikes.id})::int`,
     hasLiked: sql<boolean>`bool_or(${postLikes.userId} = ${currentUserId || 0})`,
   })
@@ -35,7 +36,7 @@ export default async function CommunityHub() {
     .leftJoin(users, eq(communityPosts.userId, users.id))
     .leftJoin(postLikes, eq(communityPosts.id, postLikes.postId))
     .where(isNull(communityPosts.parentId))
-    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl)
+    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl, users.isVerified)
     .orderBy(desc(communityPosts.createdAt));
 
   return (
@@ -61,11 +62,11 @@ export default async function CommunityHub() {
             <p className="text-zinc-500">אין דיונים עדיין. היה הראשון לפרסם!</p>
           </div>
         ) : (
-          posts.map(({ post, authorId, authorName, authorEmail, authorAvatar, likesCount, hasLiked }) => (
+          posts.map(({ post, authorId, authorName, authorEmail, authorAvatar, authorIsVerified, likesCount, hasLiked }) => (
             <div key={post.id} className="bg-[#18181B]/60 px-4 py-4 rounded-xl">
               <PostItem
                 post={post}
-                author={{ id: authorId || "", name: authorName || "", email: authorEmail || "", avatarUrl: authorAvatar || "" }}
+                author={{ id: authorId || "", name: authorName || "", email: authorEmail || "", avatarUrl: authorAvatar || "", isVerified: authorIsVerified || false }}
                 likesCount={likesCount}
                 hasLiked={hasLiked}
                 currentUserId={currentUserId}

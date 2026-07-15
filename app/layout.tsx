@@ -24,7 +24,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col dark:bg-black text-zinc-900 dark:text-zinc-50">
-        <div className="mx-auto w-full max-w-5xl min-h-screen flex flex-col bg-white dark:bg-zinc-950 shadow-2xl border-x border-zinc-300 dark:border-zinc-800 relative">
+        <div className="mx-auto w-full max-w-4xl min-h-screen flex flex-col bg-white dark:bg-zinc-950 shadow-2xl border-x border-zinc-300 dark:border-zinc-800 relative">
           <Navbar />
           <main className="flex-1 flex flex-col">
             <PageTransition>{children}</PageTransition>

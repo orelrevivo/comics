@@ -15,7 +15,7 @@ export default async function ChapterImagesPage({ params }: { params: Promise<{ 
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
 
-  if (authEmail !== 'orel@gmail.com') {
+  if (authEmail !== 'doron2010sha@gmail.com') {
     redirect('/');
   }
 
@@ -25,7 +25,7 @@ export default async function ChapterImagesPage({ params }: { params: Promise<{ 
   const [chapter] = await db.select().from(chapters).where(eq(chapters.id, chapterId));
   if (!chapter) notFound();
 
-  const rawImages = await db.select({ id: images.id, order: images.order }).from(images).where(eq(images.chapterId, chapterId)).orderBy(asc(images.order));
+  const rawImages = await db.select({ id: images.id, order: images.order, isWide: images.isWide }).from(images).where(eq(images.chapterId, chapterId)).orderBy(asc(images.order));
   const chapterImages = rawImages.map(img => ({ ...img, imageUrl: `/api/image/${img.id}` }));
 
   return (
@@ -43,7 +43,7 @@ export default async function ChapterImagesPage({ params }: { params: Promise<{ 
       <EditChapterImagesClient 
         storyId={storyId} 
         chapterId={chapterId} 
-        initialImages={chapterImages.map(img => ({ id: img.id, url: img.imageUrl, order: img.order }))} 
+        initialImages={chapterImages.map(img => ({ id: img.id, url: img.imageUrl, order: img.order, isWide: img.isWide }))} 
       />
     </div>
   );

@@ -17,7 +17,7 @@ function CommentNode({ comment, allComments, chapterId, authEmail, currentUserId
   return (
     <PostItem
       post={comment.post}
-      author={{ id: comment.authorId, name: comment.authorName, email: comment.authorEmail, avatarUrl: comment.authorAvatar }}
+      author={{ id: comment.authorId, name: comment.authorName, email: comment.authorEmail, avatarUrl: comment.authorAvatar, isVerified: comment.authorIsVerified }}
       likesCount={comment.likesCount}
       hasLiked={comment.hasLiked}
       currentUserId={currentUserId}
@@ -55,7 +55,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ id: st
   if (chapterResults.length === 0) notFound();
   const chapter = chapterResults[0];
 
-  const rawImages = await db.select({ id: images.id, order: images.order }).from(images).where(eq(images.chapterId, chapterId)).orderBy(images.order);
+  const rawImages = await db.select({ id: images.id, order: images.order, isWide: images.isWide }).from(images).where(eq(images.chapterId, chapterId)).orderBy(images.order);
   const chapterImages = rawImages.map(img => ({ ...img, imageUrl: `/api/image/${img.id}` }));
 
   // Pagination for chapters (previous / next)
@@ -80,6 +80,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ id: st
     authorName: users.name,
     authorEmail: users.email,
     authorAvatar: users.avatarUrl,
+    authorIsVerified: users.isVerified,
     likesCount: sql<number>`count(distinct ${postLikes.id})::int`,
     hasLiked: sql<boolean>`bool_or(${postLikes.userId} = ${currentUserId || 0})`,
   })
@@ -87,7 +88,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ id: st
     .leftJoin(users, eq(communityPosts.userId, users.id))
     .leftJoin(postLikes, eq(communityPosts.id, postLikes.postId))
     .where(eq(communityPosts.chapterId, chapterId))
-    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl);
+    .groupBy(communityPosts.id, users.id, users.name, users.email, users.avatarUrl, users.isVerified);
 
   const topLevelComments = allComments.filter(c => !c.post.parentId);
 

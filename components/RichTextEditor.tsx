@@ -2,7 +2,6 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import Underline from '@tiptap/extension-underline';
@@ -10,7 +9,7 @@ import Superscript from '@tiptap/extension-superscript';
 import TextAlign from '@tiptap/extension-text-align';
 import { 
   Bold, Italic, Strikethrough, Superscript as SuperscriptIcon, Type, 
-  Link as LinkIcon, Image as ImageIcon, PlaySquare, List, ListOrdered, 
+  Image as ImageIcon, PlaySquare, List, ListOrdered, 
   AlertCircle, Quote, Code, SquareSlash, PanelTop, MoreHorizontal, Underline as UnderlineIcon
 } from 'lucide-react';
 
@@ -21,7 +20,6 @@ export default function RichTextEditor({ content, onChange }: { content: string,
       Underline,
       Superscript,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Link.configure({ openOnClick: false }),
       Image,
       Placeholder.configure({ placeholder: 'Body text*' }),
     ],
@@ -51,16 +49,6 @@ export default function RichTextEditor({ content, onChange }: { content: string,
   const toggleBlockquote = () => editor.chain().focus().toggleBlockquote().run();
   const toggleCodeBlock = () => editor.chain().focus().toggleCodeBlock().run();
   
-  const setLink = () => {
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL', previousUrl);
-    if (url === null) return;
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-  };
 
   const addImage = () => {
     const url = window.prompt('Image URL');
@@ -79,7 +67,6 @@ export default function RichTextEditor({ content, onChange }: { content: string,
         <button type="button" onClick={toggleSuperscript} className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded ${editor.isActive('superscript') ? 'bg-zinc-200 dark:bg-zinc-800' : ''}`}><SuperscriptIcon className="w-4 h-4" /></button>
         <button type="button" onClick={toggleHeading} className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded border-s border-zinc-300 dark:border-zinc-700 ms-1 ps-2 ${editor.isActive('heading') ? 'bg-zinc-200 dark:bg-zinc-800' : ''}`}><Type className="w-4 h-4" /></button>
         <div className="w-[1px] h-4 bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
-        <button type="button" onClick={setLink} className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded ${editor.isActive('link') ? 'bg-zinc-200 dark:bg-zinc-800' : ''}`}><LinkIcon className="w-4 h-4" /></button>
         <button type="button" onClick={addImage} className="p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded"><ImageIcon className="w-4 h-4" /></button>
         <button type="button" onClick={toggleBulletList} className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded ${editor.isActive('bulletList') ? 'bg-zinc-200 dark:bg-zinc-800' : ''}`}><List className="w-4 h-4" /></button>
         <button type="button" onClick={toggleOrderedList} className={`p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded ${editor.isActive('orderedList') ? 'bg-zinc-200 dark:bg-zinc-800' : ''}`}><ListOrdered className="w-4 h-4" /></button>
