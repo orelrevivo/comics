@@ -85,7 +85,7 @@ export default async function PublicProfilePage(props: { params: Promise<{ id: s
           coverColor: user.coverColor,
           createdAt: user.createdAt,
           bio: user.bio,
-          isVerified: user.isVerified
+          isVerified: user.isVerified ?? false
         }}
         isOwner={currentUserId === user.id}
       />
@@ -157,7 +157,7 @@ export default async function PublicProfilePage(props: { params: Promise<{ id: s
                 <div key={post.id} className="border-b border-[#17171A] p-4 mb-4 transition relative">
                   <PostItem
                     post={post}
-                    author={{ id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl, isVerified: user.isVerified }}
+                    author={{ id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl, isVerified: user.isVerified ?? false }}
                     likesCount={likesCount}
                     hasLiked={hasLiked}
                     currentUserId={currentUserId}
@@ -181,7 +181,7 @@ export default async function PublicProfilePage(props: { params: Promise<{ id: s
                 <div key={post.id} className="border-b border-[#17171A] p-4 mb-4 transition relative">
                   <PostItem
                     post={post}
-                    author={{ id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl, isVerified: user.isVerified }}
+                    author={{ id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl, isVerified: user.isVerified ?? false }}
                     likesCount={likesCount}
                     hasLiked={hasLiked}
                     currentUserId={currentUserId}

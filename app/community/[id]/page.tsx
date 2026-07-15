@@ -16,7 +16,7 @@ function CommentNode({ comment, allComments, rootPostId, authEmail, currentUserI
   return (
     <PostItem
       post={comment.post}
-      author={{ id: comment.authorId, name: comment.authorName, email: comment.authorEmail, avatarUrl: comment.authorAvatar, isVerified: comment.authorIsVerified }}
+      author={{ id: comment.authorId, name: comment.authorName, email: comment.authorEmail, avatarUrl: comment.authorAvatar, isVerified: comment.authorIsVerified ?? false }}
       likesCount={comment.likesCount}
       hasLiked={comment.hasLiked}
       currentUserId={currentUserId}
