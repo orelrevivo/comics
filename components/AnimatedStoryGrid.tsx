@@ -31,7 +31,7 @@ export function AnimatedStoryGrid({ stories, allChapters }: AnimatedStoryGridPro
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={container}
       initial="hidden"
       animate="show"
@@ -60,11 +60,6 @@ export function AnimatedStoryGrid({ stories, allChapters }: AnimatedStoryGridPro
 
               {/* Badges */}
               <div className="absolute top-2 start-2 flex flex-col gap-1 items-start z-10">
-                {story.type && (
-                  <span className="rounded bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md uppercase tracking-wider">
-                    {story.type}
-                  </span>
-                )}
                 {story.adultContent && (
                   <span className="rounded bg-red-600/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
                     18+

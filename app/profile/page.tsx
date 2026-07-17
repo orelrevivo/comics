@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import ProfileForm from '@/components/ProfileForm';
 import Link from 'next/link';
+import Cover from '@/components/cover';
 
 export default async function ProfilePage() {
   const cookieStore = await cookies();
@@ -38,6 +39,7 @@ export default async function ProfilePage() {
         <div className="lg:col-span-3">
           <div className="">
             <h1 className="text-2xl font-bold mb-8 text-zinc-900 dark:text-white">הגדרות פרופיל</h1>
+            <Cover user={user as any} isOwner={true} />
             <ProfileForm user={user} />
           </div>
         </div>

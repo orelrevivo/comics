@@ -7,7 +7,7 @@ import { PageTransition } from "@/components/PageTransition";
 const rubik = Rubik({ subsets: ["hebrew", "latin"] });
 
 export const metadata: Metadata = {
-  title: "MangaReader - קורא מנגה",
+  title: "מנגה סטרוגל",
   description: "קראו את המנגות האהובות עליכם",
 };
 
@@ -20,7 +20,7 @@ export default function RootLayout({
     <html
       lang="he"
       dir="rtl"
-      className={`${rubik.className} h-full antialiased`}
+      className={`${rubik.className} h-full antialiased dark`}
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col dark:bg-black text-zinc-900 dark:text-zinc-50">

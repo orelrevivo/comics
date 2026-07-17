@@ -112,3 +112,15 @@ export async function getBannerTemplatesAction() {
     return [];
   }
 }
+
+export async function updateReaderSettingsAction(settingsStr: string) {
+  const cookieStore = await cookies();
+  const authEmail = cookieStore.get('auth_email')?.value;
+  if (!authEmail) return;
+
+  const { db } = await import('@/db');
+  const { users } = await import('@/db/schema');
+  const { eq } = await import('drizzle-orm');
+
+  await db.update(users).set({ readerSettings: settingsStr }).where(eq(users.email, authEmail));
+}

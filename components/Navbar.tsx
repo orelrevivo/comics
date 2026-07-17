@@ -13,7 +13,7 @@ export default async function Navbar() {
   const savedEmail = cookieStore.get('saved_email')?.value;
   const savedPassword = cookieStore.get('saved_password')?.value;
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md dark:bg-zinc-950/95 border-b border-zinc-200 dark:border-zinc-800 overflow-hidden">
+    <header id="main-navbar" className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md dark:bg-zinc-950/95 border-b border-zinc-200 dark:border-zinc-800 overflow-hidden">
       {/* Primary Navbar */}
       <div className="container mx-auto flex h-24 items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80 mt-[-8px] mr-[-27px]">

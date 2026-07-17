@@ -167,3 +167,49 @@ export async function togglePostLikeAction(postId: string) {
   revalidatePath('/community');
   revalidatePath(`/community/${postId}`);
 }
+
+import { inArray, or } from 'drizzle-orm';
+
+export async function deletePostAction(postId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error('You must be logged in to delete posts.');
+  }
+
+  const [post] = await db.select().from(communityPosts).where(eq(communityPosts.id, postId));
+  if (!post) {
+    throw new Error('Post not found.');
+  }
+
+  const isAdmin = user.isAdmin || user.email === 'doron2010sha@gmail.com';
+  if (post.userId !== user.id && !isAdmin) {
+    throw new Error('You do not have permission to delete this post.');
+  }
+
+  const { postLikes, polls, pollOptions, pollVotes } = await import('@/db/schema');
+
+  // Delete likes
+  await db.delete(postLikes).where(eq(postLikes.postId, postId));
+
+  // Delete polls associated with this post
+  const postPolls = await db.select().from(polls).where(eq(polls.postId, postId));
+  for (const poll of postPolls) {
+    await db.delete(pollVotes).where(eq(pollVotes.pollId, poll.id));
+    await db.delete(pollOptions).where(eq(pollOptions.pollId, poll.id));
+    await db.delete(polls).where(eq(polls.id, poll.id));
+  }
+
+  // Find child posts (comments)
+  const childPosts = await db.select({ id: communityPosts.id }).from(communityPosts).where(or(eq(communityPosts.rootPostId, postId), eq(communityPosts.parentId, postId)));
+  const childPostIds = childPosts.map(p => p.id);
+  
+  if (childPostIds.length > 0) {
+    await db.delete(postLikes).where(inArray(postLikes.postId, childPostIds));
+    await db.delete(communityPosts).where(inArray(communityPosts.id, childPostIds));
+  }
+
+  // Finally delete the post
+  await db.delete(communityPosts).where(eq(communityPosts.id, postId));
+
+  revalidatePath('/community');
+}

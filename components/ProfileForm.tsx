@@ -59,7 +59,7 @@ export default function ProfileForm({ user }: { user: any }) {
   return (
     <form onSubmit={handleSave} className="space-y-6">
       <div className="flex flex-col items-center sm:items-start gap-4">
-        <div className="relative group w-32 h-32 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 border-4 border-white dark:border-zinc-900 shadow-lg">
+        <div className="relative group -mt-16 mr-2 w-32 h-32 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 border-4 border-white dark:border-black shadow-lg z-10">
           {avatarUrl ? (
             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
           ) : (

@@ -12,6 +12,8 @@ export const users = pgTable('users', {
   showRepliesTab: boolean('show_replies_tab').default(true),
   isPrivate: boolean('is_private').default(false),
   isVerified: boolean('is_verified').default(false),
+  isAdmin: boolean('is_admin').default(false),
+  readerSettings: text('reader_settings'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

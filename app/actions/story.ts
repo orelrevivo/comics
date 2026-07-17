@@ -103,8 +103,8 @@ export async function createStoryAction(formData: FormData) {
   redirect(`/story/${newStory.id}`);
 }
 
-// Creates story + chapter WITHOUT images, returns IDs so client can upload images separately
-export async function createStoryMetaAction(formData: FormData): Promise<{ storyId: string; chapterId: string }> {
+// Creates story WITHOUT chapter or images
+export async function createStoryMetaAction(formData: FormData): Promise<{ storyId: string }> {
   const cookieStore = await cookies();
   const authEmail = cookieStore.get('auth_email')?.value;
 
@@ -120,8 +120,6 @@ export async function createStoryMetaAction(formData: FormData): Promise<{ story
   const status = formData.get('status') as string;
   const released = formData.get('released') as string;
   const adultContent = formData.get('adultContent') === 'on';
-  const chapterNumber = parseInt(formData.get('chapterNumber') as string || '1', 10);
-  const chapterTitle = formData.get('chapterTitle') as string;
 
   // Handle Banner Upload
   const bannerFile = formData.get('banner') as File;
@@ -136,13 +134,7 @@ export async function createStoryMetaAction(formData: FormData): Promise<{ story
     adultContent, bannerImage: bannerUrl,
   }).returning();
 
-  const [newChapter] = await db.insert(chapters).values({
-    storyId: newStory.id,
-    chapterNumber,
-    title: chapterTitle,
-  }).returning();
-
-  return { storyId: newStory.id, chapterId: newChapter.id };
+  return { storyId: newStory.id };
 }
 
 // Save a single image URL to a chapter (called by client after each individual upload)
@@ -390,4 +382,16 @@ export async function updateImageWidthAction(imageId: string, chapterId: string,
     .where(eq(images.id, imageId));
 
   revalidatePath(`/create/edit/${storyId}/chapters/${chapterId}`);
+}
+
+export async function updateChapterTitleAction(chapterId: string, storyId: string, newTitle: string) {
+  const cookieStore = await cookies();
+  const authEmail = cookieStore.get('auth_email')?.value;
+  if (authEmail !== 'doron2010sha@gmail.com') throw new Error('Unauthorized');
+
+  const { eq } = await import('drizzle-orm');
+  
+  await db.update(chapters).set({ title: newTitle }).where(eq(chapters.id, chapterId));
+
+  revalidatePath(`/create/edit/${storyId}/chapters`);
 }

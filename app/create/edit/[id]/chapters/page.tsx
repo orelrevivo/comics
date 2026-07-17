@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowRight, Trash2, Plus, Image as ImageIcon } from "lucide-react";
 import { deleteChapterAction, addChapterAction } from "@/app/actions/story";
 import { DeleteChapterButton } from "@/components/DeleteChapterButton";
+import { EditChapterTitle } from "@/components/EditChapterTitle";
 
 export default async function ChaptersDashboardPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -62,7 +63,7 @@ export default async function ChaptersDashboardPage({ params }: { params: Promis
           storyChapters.map(chapter => (
             <div key={chapter.id} className="brutal-card bg-white dark:bg-zinc-900 p-4 flex items-center justify-between">
               <div>
-                {chapter.title && <p className="font-bold text-lg">{chapter.title}</p>}
+                <EditChapterTitle chapterId={chapter.id} storyId={story.id} initialTitle={chapter.title || ''} />
               </div>
               <div className="flex items-center gap-2 space-x-reverse">
                 <Link href={`/create/edit/${story.id}/chapters/${chapter.id}`} className="brutal-btn bg-indigo-500 text-white px-4 py-2 flex items-center gap-2 text-sm font-bold">

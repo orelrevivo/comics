@@ -69,9 +69,18 @@ export default async function ChapterPage({ params }: { params: Promise<{ id: st
   const authEmail = cookieStore.get('auth_email')?.value;
 
   let currentUserId: string | null = null;
+  let initialReaderSettings = null;
+  
   if (authEmail) {
-    const [u] = await db.select({ id: users.id }).from(users).where(eq(users.email, authEmail));
-    if (u) currentUserId = u.id;
+    const [u] = await db.select({ id: users.id, readerSettings: users.readerSettings }).from(users).where(eq(users.email, authEmail));
+    if (u) {
+      currentUserId = u.id;
+      if (u.readerSettings) {
+        try {
+          initialReaderSettings = JSON.parse(u.readerSettings);
+        } catch (e) {}
+      }
+    }
   }
 
   const allComments = await db.select({
@@ -100,6 +109,8 @@ export default async function ChapterPage({ params }: { params: Promise<{ id: st
         chapterImages={chapterImages}
         prevChapter={prevChapter}
         nextChapter={nextChapter}
+        initialSettings={initialReaderSettings}
+        isLoggedIn={!!currentUserId}
       />
 
       <div className="container mx-auto py-8 max-w-4xl px-4">

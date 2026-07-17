@@ -10,6 +10,7 @@ import { users, userSubscriptions } from "@/db/schema";
 import { and } from "drizzle-orm";
 import { deleteStoryAction } from "@/app/actions/story";
 import { DeleteStoryButton } from "@/components/DeleteStoryButton";
+import LastReadBadge from "@/components/LastReadBadge";
 
 export default async function StoryPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -117,6 +118,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
               >
                 <div>
                   {chapter.title && <span className="font-semibold block">{chapter.title}</span>}
+                  <LastReadBadge storyId={story.id} chapterId={chapter.id} />
                 </div>
               </Link>
             ))}
